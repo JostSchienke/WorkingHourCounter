@@ -28,7 +28,7 @@ def load_json(file_path):
 def save_json(file_path, data):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=4)
-    print("Data saved successfully.")
+    print(f"JSON data saved successfully at: {os.path.abspath(file_path)}")
 
 def logon_user(data):
     if data['IsLoggedOn']:
@@ -116,7 +116,7 @@ def get_times(data, date=None, month=None, full_export=False):
             sheet[f"E{row_num}"].value = day['logout-reason']
         
         workbook.save(excel_file)
-        print(f"Data exported to {excel_file}.")
+        print(f"Excel data exported successfully at: {os.path.abspath(excel_file)}")
 
 if len(sys.argv) > 1:
     command = sys.argv[1]
