@@ -14,6 +14,13 @@ you can either logon or logoff (with a reason), or just export your working hour
             " -> Full-Export      =>      Exports all entries as an xlsx file",
             "-help                =>      Shows all commands"
 
+## Libraries
+### OpenPYXL
+you will need to install OpenPYXL:
+```bash
+            pip install openpyxl
+```
+
 ## Powershell script
 
 their is also a PS script that can be added to you $PROFILE file, to add a Command instead of using the python ./hourcounter.
