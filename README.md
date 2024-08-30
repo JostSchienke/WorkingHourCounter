@@ -18,3 +18,6 @@ you can either logon or logoff (with a reason), or just export your working hour
 
 their is also a PS script that can be added to you $PROFILE file, to add a Command instead of using the python ./hourcounter.
 the command is "imworking" but this can be changed by changing the PS script.
+
+To add the command to your Powershell, open up the $PROFILE file, and add the Code Snipet, change it so it fits to your needs.
+after saving the $PROFILE file, reload it by using "$PROFILE ." after this the command should work (you might need to restart your PowerShell)
