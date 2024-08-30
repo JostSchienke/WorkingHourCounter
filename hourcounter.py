@@ -71,26 +71,41 @@ def get_times(data, date=None, month=None, full_export=False):
     if date:
         entries = [day for day in data['Days'] if day['day'] == date]
         if entries:
-            print(f"Entries for {date}:")
-            print("\n")
+            print(f"Entries for {date}:\n")
+            total_seconds = 0
             for entry in entries:
                 print(entry)
-            print("\n")
+                if entry['time-worked']:  
+                    time_parts = entry['time-worked'].split(':')
+                    total_seconds += int(time_parts[0]) * 3600 + int(time_parts[1]) * 60
+            total_hours = total_seconds // 3600
+            total_minutes = (total_seconds % 3600) // 60
+            print(f"Total time worked on {date}: {total_hours:02}:{total_minutes:02}\n")
         else:
             print(f"No entries found for {date}.")
     elif month:
         month_entries = [day for day in data['Days'] if datetime.strptime(day['day'], '%d.%m.%Y').strftime('%B').lower() == month.lower() or datetime.strptime(day['day'], '%d.%m.%Y').strftime('%m') == month.zfill(2)]
         if month_entries:
             last_day = None
-            print(f"Entries for {month.capitalize()}:")
-            print("\n")
+            daily_seconds = 0
+            print(f"Entries for {month.capitalize()}:\n")
             for entry in month_entries:
                 if entry['day'] != last_day:
                     if last_day is not None:
+                        total_hours = daily_seconds // 3600
+                        total_minutes = (daily_seconds % 3600) // 60
+                        print(f"Total time worked on {last_day}: {total_hours:02}:{total_minutes:02}\n")
+                        daily_seconds = 0
                         print("-" * 80)
                     last_day = entry['day']
                 print(entry)
-            print("\n")
+                if entry['time-worked']:  
+                    time_parts = entry['time-worked'].split(':')
+                    daily_seconds += int(time_parts[0]) * 3600 + int(time_parts[1]) * 60
+            if last_day is not None:
+                total_hours = daily_seconds // 3600
+                total_minutes = (daily_seconds % 3600) // 60
+                print(f"Total time worked on {last_day}: {total_hours:02}:{total_minutes:02}\n")
             print("-" * 80)
             print("\n")
         else:
@@ -108,13 +123,37 @@ def get_times(data, date=None, month=None, full_export=False):
             cell.value = header
             cell.alignment = Alignment(horizontal="center", vertical="center")
 
-        for row_num, day in enumerate(data['Days'], 2):
+        row_num = 2
+        last_day = None
+        daily_seconds = 0
+        for day in data['Days']:
+            if day['day'] != last_day:
+                if last_day is not None:
+                    
+                    sheet[f"A{row_num}"].value = f"Total for {last_day}"
+                    sheet[f"D{row_num}"].value = f"{daily_seconds // 3600:02}:{(daily_seconds % 3600) // 60:02}"
+                    sheet[f"D{row_num}"].alignment = Alignment(horizontal="center")
+                    row_num += 1
+                
+                last_day = day['day']
+                daily_seconds = 0
+            
             sheet[f"A{row_num}"].value = day['day']
             sheet[f"B{row_num}"].value = day['logon-time']
             sheet[f"C{row_num}"].value = day['logout-time']
             sheet[f"D{row_num}"].value = day['time-worked']
             sheet[f"E{row_num}"].value = day['logout-reason']
-        
+            row_num += 1
+            
+            if day['time-worked']:
+                time_parts = day['time-worked'].split(':')
+                daily_seconds += int(time_parts[0]) * 3600 + int(time_parts[1]) * 60
+
+        if last_day is not None:
+            sheet[f"A{row_num}"].value = f"Total for {last_day}"
+            sheet[f"D{row_num}"].value = f"{daily_seconds // 3600:02}:{(daily_seconds % 3600) // 60:02}"
+            sheet[f"D{row_num}"].alignment = Alignment(horizontal="center")
+
         workbook.save(excel_file)
         print(f"Excel data exported successfully at: {os.path.abspath(excel_file)}")
 
@@ -166,7 +205,7 @@ if len(sys.argv) > 1:
             " -> LOGOFF-REASON    =>      Adds a reason for the Logoff to the logoff",
             "-get-times           =>      A Command for Exporting the Times",
             " -> Date DD.MM.YYYY  =>      Exports the time of a specific day",
-            " -> month (MM)       =>      Exports the times of that specific month",
+            " -> Month (MM)       =>      Exports the times of that specific month",
             " -> Full-Export      =>      Exports all entries as an xlsx file",
             "-help                =>      Shows all commands"
         ]
