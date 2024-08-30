@@ -18,7 +18,7 @@ you can either logon or logoff (with a reason), or just export your working hour
 ### OpenPYXL
 you will need to install OpenPYXL:
 ```bash
-            pip install openpyxl
+pip install openpyxl
 ```
 
 ## Powershell script
